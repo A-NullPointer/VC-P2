@@ -155,6 +155,36 @@ Como se puede observar, en el caso de Canny, el umbralizado prácticamente no ha
 
 <h2 align="center">Tarea 3: Demostrador</h2>
 
+Para el desarrollo de este demostrador, se ha reutilizado la clase desarrollada en la práctica anterior para aplicar transformaciones a los canales de una imagen, ampliando sus métodos para añadir nuevas formas de modificar la imagen con conceptos aprendidos en estas dos prácticas. Además, se ha englobado todo ello en una pequeña aplicación usando la biblioteca gráfica de python, `Tkinter`.
+
+Los nuevos métodos son los siguientes:
+
+```python
+```
+
+En concreto, se han añadido utilizades para:
+- Hacer un collage con inversión completa de los colores de la imagen e inversión individual de cada canal de la misma
+- Aplicar Canny a cada fotograma e invertir la misma, consiguiendo un efecto de dibujo
+- Resaltar los objetos con valores HSV seleccionados, dejando el resto de la imagen en escala de grises
+- Aplicar Sobel a cada fotograma
+- Aplicar Sobel y posterior umbralizado a cada fotograma
+
+> [!NOTE]
+> Los controles de la aplicación pueden verse en la misma ventana de ejecución. El modo actual será mostrado justo encima del vídeo.
+
+A continuación, se muestran todos los modos disponibles en funcionamiento:
+
+<table align="center">
+    <img src="">
+    <img src="">
+    <img src="">
+    <img src="">
+    <img src="">
+    <img src="">
+    <img src="">
+    <img src="">
+</table>
+
 <h2 align="center">Tarea 4: Reinterpretación de Air Guitar</h2>
 
 <h2 align="center">Bibliografía</h2>
