@@ -74,9 +74,11 @@ A continuación se muestra el resultado:
    <td>
       <h3 align="center">Sobel vertical</h3>
       <img src="imgs/mandril_sobel_vertical.jpg">
+    </td>
    <td>
       <h3 align="center">Sobel combinado</h3>
       <img src="imgs/mandril_sobel_solo.jpg">                                             
+    </td>
 </table>
 
 Posteriormente, para obtener el umbral necesario, se ha calculado el histograma de esta imagen a la que se le ha aplicado Sobel con ayuda de la función `cv2.calcHist` de OpenCV:
@@ -87,7 +89,9 @@ histogram = cv2.calcHist([cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)], [0], None, [
 
 Y este es el histograma resultante:
 
-<img src="imgs/mandril_histograma.jpg">
+<div align="center">
+    <img src="imgs/mandril_histograma.jpg">
+</div>
 
 En el valle situado entre los dos picos del histograma, podemos encontrar el umbral necesario.
 
@@ -104,7 +108,9 @@ _, threshold_image = cv2.threshold(cv2.cvtColor(image, cv2.COLOR_RGB2GRAY), thre
 
 El resultado obtenido es el siguiente:
 
-<img src="imgs/mandril_umbralizado.jpg">
+<div align="center">
+    <img src="imgs/mandril_umbralizado.jpg">
+</div>
 
 Tras umbralizar la imagen, podemos seguir con la tarea. Ahora, se intenta contar las filas y columnas con valores no nulos de la imagen resultante para posteriormente, marcar en la misma aquellas que superen el 90% del máximo de píxeles encontrados en una fila / columna.
 
@@ -145,13 +151,23 @@ for col, value in columns.items():
 
 A continuación se muestra el resultado:
 
-<img src="imgs/mandril_umbralizado_filas_columnas.jpg">
+<div align="center">
+    <img src="imgs/mandril_umbralizado_filas_columnas.jpg">
+</div>
 
 Finalmente, lo compararemos con Canny. Se han seguido los mismo procedimientos que en el caso de Sobel y este es el resultado:
 
-<img src="imgs/mandril_canny_vs_sobel.jpg" align="center">
+<div align="center">
+    <img src="imgs/mandril_canny_vs_sobel.jpg" align="center">
+</div>
 
-Como se puede observar, en el caso de Canny, el umbralizado prácticamente no ha hecho efecto. Esto se debe a que Canny no termina de encerrar áreas que luego serán encerradas por el umbralizado como bien hace Sobel, es por ello que los píxeles no nulos por columnas y filas disminuyen considerablemente.
+Como se puede observar, en el caso de Canny es donde más filas y columnas se han remarcado, y también es donde mayor número de píxeles hay. A continuación, se muestra la comparación gráfica de ambos casos para el conteo de sus filas y columnas con valores no nulos:
+
+<div align="center">
+    <img src="imgs/canny_vs_sobel_porcentaje.jpg">
+</div>
+
+Con estas gráficas, puede apreciarse mucho mejor como Canny posee un mayor número de píxeles no nulos en cada fila y columna en comparación con Sobel.
 
 <h2 align="center">Tarea 3: Demostrador</h2>
 
@@ -160,31 +176,114 @@ Para el desarrollo de este demostrador, se ha reutilizado la clase desarrollada 
 Los nuevos métodos son los siguientes:
 
 ```python
+@staticmethod
+def canny_inverted(image, *args):
+    return Demo.negative_image(cv2.Canny(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), 50, 200))
+    
+@staticmethod
+def sobel(image, *args):
+    gaussian_image = cv2.GaussianBlur(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), (3, 3), 0)
+    sobel_y = cv2.Sobel(gaussian_image, cv2.CV_64F, 0, 1)
+    sobel_x = cv2.Sobel(gaussian_image, cv2.CV_64F, 1, 0)
+    return cv2.convertScaleAbs(cv2.add(sobel_x, sobel_y))
+    
+@staticmethod
+def isolate_color(image, mask1, mask2):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, mask1, mask2)
+    return cv2.bitwise_and(image, image, mask=mask)
+    
+@staticmethod
+def threshold_function(image, *args):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, threshold_image = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    return threshold_image
 ```
 
 En concreto, se han añadido utilizades para:
 - Hacer un collage con inversión completa de los colores de la imagen e inversión individual de cada canal de la misma
 - Aplicar Canny a cada fotograma e invertir la misma, consiguiendo un efecto de dibujo
+- Aplicar Canny a cada fotograma, mostrando los bordes con su respectivo color de la imagen original
 - Resaltar los objetos con valores HSV seleccionados, dejando el resto de la imagen en escala de grises
 - Aplicar Sobel a cada fotograma
-- Aplicar Sobel y posterior umbralizado a cada fotograma
+- Aplicar umbralizado a cada fotograma
+- Efecto Cartoon aplicando Canny y disminución de bits en cada canal
 
 > [!NOTE]
-> Los controles de la aplicación pueden verse en la misma ventana de ejecución. El modo actual será mostrado justo encima del vídeo.
+> Los controles de la aplicación pueden verse en la misma ventana de ejecución. El modo actual será mostrado justo encima del vídeo. Ademaás, en la zona derecha de la ventana pueden verse los controles para modificar los valores de los rangos para HSV.
 
 A continuación, se muestran todos los modos disponibles en funcionamiento:
 
 <table align="center">
-    <img src="">
-    <img src="">
-    <img src="">
-    <img src="">
-    <img src="">
-    <img src="">
-    <img src="">
-    <img src="">
+    <tr>
+        <td>
+            <h3 align="center">Collage de inversiones</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+        <td>
+            <h3 align="center">Canny y efecto dibujo</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+        <td>
+            <h3 align="center">Canny colorido</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+        <td>
+            <h3 align="center">HSV y rangos 1</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h3 align="center">HSV y rangos 2</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+        <td>
+            <h3 align="center">Sobel para efecto relieve</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+        <td>
+            <h3 align="center">Umbralizado</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+        <td>
+            <h3 align="center">Efecto Cartoon</h3>
+            <img src="imgs/mandril_sobel_solo.jpg">                                             
+        </td>
+    </tr>
 </table>
 
-<h2 align="center">Tarea 4: Reinterpretación de Air Guitar</h2>
+<h2 align="center">Tarea 4: Reinterpretaciones</h2>
+
+Con el fin de fomentar el aprendizaje y dejar volar nuestra imaginación, hemos decidido que cada miembro del grupo desarolle su propia interpretación. Por ello, se ha realizado un `Pincel Virtual` (`Tarea 4a`) y `Pintar con Movimiento` (`Tarea 4b`). A continuación, se presentara la primera parte de esta tarea.
+
+<h2 align="center">Tarea 4a: Reinterpretación de Air Guitar: Pincel Virtual</h2>
+
+En concreto, se ha seleccionado el color rojo para ser nuestro pincel virtual. La pequeña aplicación desarrollada en `Tkinter` permite capturar la imagen desde la webcam del ordenador para posteriormente, con ayuda de nuestro rotulador de tapa roja, empezar a dibujar sobre dicha imagen capturada.
+
+> [!NOTE] 
+> Para desarrollar el pincel virtual, se ha hecho uso del espacio de colores `HSV`, el cual permite, con ayuda de funciones de
+`OpenCV`, detertar rangos de colores con el fin de aislar o detectar los mismos en cada fotograma.
+
+A la hora de realizar esta interpretación surgió un problema, y era cómo detectar la posición del objeto rojizo en la imagen. Investigando en la documentación de `OpenCV`, se ha encontrado una función capaz de encontrar contornos y posteriormente, encerrarlo en un rectángulo, obteniendo las coordenadas X e Y del mismo así como su altura y ancho. Dichas funciones son `cv2.findContours` y `cv2.boundingRect` respectivamente. Con esto, se tiene todo lo necesario para empezar a simular un pincel virtual detectando un objeto rojizo.
+
+> [!NOTE] 
+> Dependiendo de la altura del objeto usado como pincel, el grosor de la pincelada virtual aumentará o disminuirá. Además, la aplicación permite observar la imagen tomada originalmente sobre la que también se superpondrá el objeto detectado como pincel, qué es lo que se está detectando que podría ser detectado como el pincel virtual, el lienzo resultante de las pinceladas, y la combinación del lienzo sobre la imagen original. Con todo esto, la diversión siempre estará presente.
+
+A continuación, se muestran varios ejemplos de uso de esta interpretación realizada:
+
+<table align="center">
+    <td>
+        <img src="imgs/mandril.jpg">
+    </td>
+    <td>
+        <img src="imgs/mandril.jpg">
+    </td>
+</table>
+
+> [!NOTE]
+> Se pueden borrar los trazos realizados con la tecla BACKSPACE
+
+<h2 align="center">Tarea 4a: Dibuja con Movimiento</h2>
 
 <h2 align="center">Bibliografía</h2>
