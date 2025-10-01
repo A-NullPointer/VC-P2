@@ -62,7 +62,10 @@ sobel_x = cv2.Sobel(gaussian_image, cv2.CV_64F, 1, 0)
 sobel = cv2.convertScaleAbs(cv2.add(sobel_x, sobel_y))
 ```
 
-Primero se ha aplicado un filtro Gaussiano, que nos difuminará ligeramente la imagen para posteriormente, aplicar Sobel en vertical y horizontal. Finalmente se juntan los resultados y se obtiene la imagen de Sobel con bordes verticales y horizontales
+Primero se ha aplicado un filtro Gaussiano, que nos difuminará ligeramente la imagen eliminando el ruido para posteriormente, aplicar Sobel en vertical y horizontal. Finalmente se juntan los resultados y se obtiene la imagen de Sobel con bordes verticales y horizontales.
+
+> [!IMPORTANT]
+> Es necesario pasar el resultado a 8 bits, de los contrario, los valores de los píxeles podrían salirse del rango (0, 255).
 
 A continuación se muestra el resultado:
 
@@ -135,6 +138,25 @@ Seguidamente, hacemos el conteo de aquellas filas y columnas con valores por enc
 ```python
 counts_rows_sobel, max_row_index_sobel, max_row_value_sobel, rows_sobel = statistics(threshold_image_sobel, .9, 1)
 counts_columns_sobel, max_column_index_sobel, max_column_value_sobel, columns_sobel = statistics(threshold_image_sobel, .9, 0)
+```
+
+Los resultados obtenidos son los siguientes:
+
+```
+-------------Filas-------------
+La fila con índice 82 tiene el valor máximo con 161 píxeles blancos
+Las filas que tienen un valor mayor al 90% del máximo son las siguientes:
+	Fila 3 con valor 155
+	Fila 4 con valor 149
+	Fila 20 con valor 149
+	Fila 51 con valor 151
+	Fila 81 con valor 152
+	Fila 82 con valor 161
+	Fila 83 con valor 154
+------------Columnas-----------
+La columna con índice 288 tiene el valor máximo con 179 píxeles blancos
+Las columnas que tienen un valor mayor al 90% del máximo son las siguientes:
+	Columna 288 con valor 179
 ```
 
 > [!NOTE]
