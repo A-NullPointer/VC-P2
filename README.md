@@ -117,14 +117,15 @@ Tras umbralizar la imagen, podemos seguir con la tarea. Ahora, se intenta contar
 Para lograr lo descrito anteriormente, se ha recurrido a la función `np.count_nonzero` de Numpy, la cual es perfecta para esta situación, pues nos dará un array donde cada valor corresponde al número de píxeles no nulos en dicha fila / columna. La función desarrollada para tal fin es la siguiente:
 
 ```python
-def count_above(image, p, axis):
+def statistics(image, p, axis):
     counts = np.count_nonzero(image, axis=axis)
     max_index = np.argmax(counts)
     max_value = counts[max_index]
-    return {i: int(counts[i]) for i in range(len(counts)) if counts[i] > p*max_value}
+    threshold = p*max_value
+    return counts, max_index, max_value, {i: int(counts[i]) for i in range(len(counts)) if counts[i] > threshold}
 ```
 
-A la función le pasámos como parámetros la propia imagen, el porcentaje objetivo y el eje (filas / columnas).
+A la función le pasamos como parámetros la propia imagen, el porcentaje objetivo y el eje (filas / columnas).
 
 > [!NOTE]
 > Para encontrar la posición y el valor máximo se ha hecho uso de la función `np.argmax`de Numpy, la cual devuelve el índice del elemento con el valor máximo dentro del array.
@@ -132,21 +133,31 @@ A la función le pasámos como parámetros la propia imagen, el porcentaje objet
 Seguidamente, hacemos el conteo de aquellas filas y columnas con valores por encima del 90% del máximo:
 
 ```python
-rows = count_above(threshold_image, .9, 1)
-columns = count_above(threshold_image, .9, 0)
+counts_rows_sobel, max_row_index_sobel, max_row_value_sobel, rows_sobel = statistics(threshold_image_sobel, .9, 1)
+counts_columns_sobel, max_column_index_sobel, max_column_value_sobel, columns_sobel = statistics(threshold_image_sobel, .9, 0)
 ```
+
+> [!NOTE]
+> Los datos extras no utilizados actualmente nos servirán en la comparación posterior con Canny.
 
 Tras obtener estos datos, podemos remarcar dichos ejes que cumplan la condición planteada en esta tarea usando primitivas gráficas de OpenCV del siguiente modo:
 
 ```python
-h, w = threshold_image.shape
-threshold_image = cv2.cvtColor(threshold_image, cv2.COLOR_GRAY2RGB)
+threshold_image_marked = cv2.cvtColor(threshold_image_sobel, cv2.COLOR_GRAY2RGB)
 
-for row, value in rows.items():
-    cv2.line(threshold_image, (0, row), (w, row), (255, 0, 0), 1)
+draw_rows_and_columns(threshold_image_marked, rows_sobel, columns_sobel)
+```
 
-for col, value in columns.items():
-    cv2.line(threshold_image, (col, 0), (col, h), (0, 255, 0), 1)
+La función utilizada para dibujar dichas primitivas gráficas es la siguiente:
+
+```python
+def draw_rows_and_columns(image, rows, columns):
+    h, w, *_ = image.shape
+    for row in rows.keys():
+        cv2.line(image, (0, row), (w, row), (255, 0, 0), 1)
+
+    for col in columns.keys():
+        cv2.line(image, (col, 0), (col, h), (0, 255, 0), 1)
 ```
 
 A continuación se muestra el resultado:
@@ -155,7 +166,7 @@ A continuación se muestra el resultado:
     <img src="imgs/mandril_umbralizado_filas_columnas.jpg">
 </div>
 
-Finalmente, lo compararemos con Canny. Se han seguido los mismo procedimientos que en el caso de Sobel y este es el resultado:
+Finalmente, lo compararemos con Canny. Se han seguido los mismos procedimientos que en el caso de Sobel y este es el resultado:
 
 <div align="center">
     <img src="imgs/mandril_canny_vs_sobel.jpg" align="center">
@@ -191,7 +202,10 @@ def sobel(image, *args):
 def isolate_color(image, mask1, mask2):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, mask1, mask2)
-    return cv2.bitwise_and(image, image, mask=mask)
+    color_part = cv2.bitwise_and(image, image, mask=mask)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray_bgr = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+    return np.where(mask[:, :, None] != 0, color_part, gray_bgr)
     
 @staticmethod
 def threshold_function(image, *args):
@@ -253,6 +267,9 @@ A continuación, se muestran todos los modos disponibles en funcionamiento:
     </tr>
 </table>
 
+> [!NOTE]
+> El código de la aplicación puede verse en el cuaderno [Practica2.ipynb](Practica2.ipynb).
+
 <h2 align="center">Tarea 4: Reinterpretaciones</h2>
 
 Con el fin de fomentar el aprendizaje y dejar volar nuestra imaginación, hemos decidido que cada miembro del grupo desarolle su propia interpretación. Por ello, se ha realizado un `Pincel Virtual` (`Tarea 4a`) y `Pintar con Movimiento` (`Tarea 4b`). A continuación, se presentara la primera parte de esta tarea.
@@ -273,17 +290,29 @@ A la hora de realizar esta interpretación surgió un problema, y era cómo dete
 A continuación, se muestran varios ejemplos de uso de esta interpretación realizada:
 
 <table align="center">
-    <td>
-        <img src="imgs/mandril.jpg">
-    </td>
-    <td>
-        <img src="imgs/mandril.jpg">
-    </td>
+    <tr>
+        <td>
+            <img src="imgs/mandril.jpg">
+        </td>
+        <td>
+            <img src="imgs/mandril.jpg">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <img src="imgs/mandril.jpg">
+        </td>
+        <td>
+            <img src="imgs/mandril.jpg">
+        </td>
+    </tr>
 </table>
 
 > [!NOTE]
-> Se pueden borrar los trazos realizados con la tecla BACKSPACE
+> Se pueden borrar los trazos realizados con la tecla BACKSPACE. El código de la aplicación puede verse en el cuaderno [Practica2.ipynb](Practica2.ipynb).
 
 <h2 align="center">Tarea 4a: Dibuja con Movimiento</h2>
+
+
 
 <h2 align="center">Bibliografía</h2>
