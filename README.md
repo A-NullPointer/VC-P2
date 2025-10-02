@@ -1,4 +1,4 @@
-<h1 align="center">Práctica 1</h1>
+<h1 align="center">Práctica 2</h1>
 
 <h2 align="center">Asignatura: Visión por Computador</h2>
 
