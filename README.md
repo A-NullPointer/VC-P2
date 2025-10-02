@@ -49,9 +49,9 @@ Finalmente, abriendo nuestro IDE favorito y teniendo instalado todo lo necesario
 
 <h1 align="center">Tareas</h1>
 
-<h2 align="center">Tarea 1: Contar píxeles no nulos en cada fila haciendo un conteo de aquellas que tienen un valor obtenido mayor o igual al 90% del máximo usando Canny</h2>
+<h2 align="center">Tarea 1 CANNY: Contar píxeles no nulos en cada fila haciendo un conteo de aquellas que tienen un valor obtenido mayor o igual al 90% del máximo usando</h2>
 
-Se aplica el operador de Canny para detectar bordes en la imagen en escala de grises:
+Se aplica Canny para detectar bordes en la imagen en escala de grises:
 
 ```python
 gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -64,7 +64,7 @@ row_counts = cv2.reduce(canny, 1, cv2.REDUCE_SUM, dtype=cv2.CV_32SC1).flatten()
 row = row_counts / (255 * canny.shape[1])
 ```
 
-Se determina el valor máximo de píxeles blancos por fila y se establecen las filas que superan el 90% de este máximo:
+Se determina el valor máximo de píxeles blancos por fila y se guarda en una variable las filas que superan el 90% de este máximo:
 
 ```python
 umbral = 0.9 * max_row
@@ -80,8 +80,6 @@ De manera similar, se realiza el análisis por columnas:
 col_counts = cv2.reduce(canny, 0, cv2.REDUCE_SUM, dtype=cv2.CV_32SC1)
 cols = col_counts[0] / (255 * canny.shape[0])
 ```
-
-Se identifican las columnas que superan el 90% del valor máximo y se marcan sobre la imagen.
 
 <h3 align="center"> Resultados </h3>
 
@@ -273,6 +271,32 @@ def threshold_function(image, *args):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, threshold_image = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return threshold_image
+
+@staticmethod
+    def create_colored_edges_effect(frame, *args):
+        colored = Demo.posterize(frame, levels=6)
+        colored = Demo.apply_pop_art_color(colored, hue_shift=30)
+        edges = Demo.border_canny(frame, 100, 255)
+        edges_inv = cv2.bitwise_not(edges)
+        edges_color = cv2.cvtColor(edges_inv, cv2.COLOR_GRAY2BGR)
+        result = cv2.bitwise_and(colored, edges_color)
+        return result
+
+@staticmethod
+    def create_cartoon_effect(frame, *args):
+        bits = 1
+        levels = 2 ** bits
+        step = 256 // levels
+        colored_regions = (frame // step) * step + step // 2  
+        edges = Demo.border_canny_grosor(frame, linf=100, lsup=255, grosor=2)
+        mask_edges_bgr = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+        mask = mask_edges_bgr.astype(float) / 255.0
+
+        #result = cv2.add(colored_regions, edges_bgr)
+        result = (colored_regions * mask).astype(np.uint8)
+
+        return result
+
 ```
 
 En concreto, se han añadido utilizades para:
@@ -283,7 +307,6 @@ En concreto, se han añadido utilizades para:
 - Aplicar Sobel a cada fotograma
 - Aplicar umbralizado a cada fotograma
 - Efecto Cartoon aplicando Canny y disminución de bits en cada canal
-- 
 
 > [!NOTE]
 > Los controles de la aplicación pueden verse en la misma ventana de ejecución. El modo actual será mostrado justo encima del vídeo. Ademaás, en la zona derecha de la ventana pueden verse los controles para modificar los valores de los rangos para HSV.
@@ -406,7 +429,6 @@ def detectar_movimiento(frame_actual, frame_prev, umbral=25):
     return mask, diff
 ```
 
-El algoritmo:
 1. Convierte ambos frames a escala de grises
 2. Aplica suavizado Gaussiano para reducir ruido
 3. Calcula la diferencia absoluta entre frames
@@ -434,10 +456,7 @@ def aplicar_colores_movimiento(mask, intensidad, frame_shape):
     return color_bgr
 ```
 
-El color cambia cíclicamente a través del espectro HSV:
-- **Hue**: Rotación continua (efecto arcoíris)
-- **Saturación**: Máxima (255)
-- **Value**: Proporcional a la intensidad del movimiento
+El color cambia cíclicamente a través del espectro HSV
 
 ### Detección de bordes del movimiento
 
@@ -489,18 +508,6 @@ El canvas se actualiza aplicando:
 - **SPACE**: Limpiar canvas
 - **+ / -**: Ajustar sensibilidad del movimiento
 - **d / D**: Ajustar velocidad de desvanecimiento
-
-### Parámetros configurables
-
-```python
-UMBRAL_MOVIMIENTO = 25  # Sensibilidad de detección (5-100)
-DECAY_RATE = 0.95       # Velocidad de desvanecimiento (0.85-0.99)
-COLOR_INTENSIDAD = 180  # Intensidad máxima de color
-```
-
-- **UMBRAL_MOVIMIENTO**: Valores bajos detectan movimientos sutiles
-- **DECAY_RATE**: Valores cercanos a 1 hacen que la pintura persista más tiempo
-- **COLOR_INTENSIDAD**: Controla el brillo máximo de los colores
 
 
 
