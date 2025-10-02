@@ -283,6 +283,7 @@ En concreto, se han añadido utilizades para:
 - Aplicar Sobel a cada fotograma
 - Aplicar umbralizado a cada fotograma
 - Efecto Cartoon aplicando Canny y disminución de bits en cada canal
+- 
 
 > [!NOTE]
 > Los controles de la aplicación pueden verse en la misma ventana de ejecución. El modo actual será mostrado justo encima del vídeo. Ademaás, en la zona derecha de la ventana pueden verse los controles para modificar los valores de los rangos para HSV.
