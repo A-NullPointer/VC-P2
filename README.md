@@ -400,14 +400,7 @@ A continuación, se muestran varios ejemplos de uso de esta interpretación real
 
 <h2 align="center">Tarea 4b: Estela con movimiento</h2>
 
-Inspirado en la instalación interactiva "Messa di Voce", este demostrador permite pintar con el movimiento detectado por la cámara.
-
-### Concepto
-
-- El movimiento deja "pintura" en pantalla
-- Diferentes intensidades de movimiento generan diferentes colores
-- Los bordes del movimiento se resaltan
-- La pintura se desvanece gradualmente si no hay movimiento
+Inspirado en la instalación interactiva "Messa di Voce", esta demo pinta el movimienti detectado por cámara resaltando los bordesy según la intensidad se dejará una estela de diferentes colores. Una vez no hay movimiento los trazos se desvanecen.
 
 ### Detección de movimiento
 
@@ -497,10 +490,7 @@ def procesar_frame(frame, frame_prev):
     return canvas
 ```
 
-El canvas se actualiza aplicando:
-1. **Desvanecimiento**: Multiplicación por `DECAY_RATE` (0.95)
-2. **Nuevo movimiento**: Adición del color generado
-3. **Bordes**: Adición de bordes blancos brillantes
+El canvas se actualiza aplicando una multiplicación por la variable DECAY_RATE (0.95). Se aplica los bordes en blanco para el movimiento y la adicción de color.
 
 ### Controles interactivos
 
@@ -508,7 +498,6 @@ El canvas se actualiza aplicando:
 - **SPACE**: Limpiar canvas
 - **+ / -**: Ajustar sensibilidad del movimiento
 - **d / D**: Ajustar velocidad de desvanecimiento
-
 
 
 <h2 align="center"> Bibliografía </h2>
