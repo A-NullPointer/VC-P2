@@ -317,11 +317,11 @@ A continuación, se muestran todos los modos disponibles en funcionamiento:
     <tr>
         <td>
             <h3 align="center">Collage de inversiones</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/demo_inverted.png">                                             
         </td>
         <td>
             <h3 align="center">Canny y efecto dibujo</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/demo_draw.png">                                             
         </td>
         <td>
             <h3 align="center">Canny colorido</h3>
@@ -329,21 +329,21 @@ A continuación, se muestran todos los modos disponibles en funcionamiento:
         </td>
         <td>
             <h3 align="center">HSV y rangos 1</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/demo_green.png">                                             
         </td>
     </tr>
     <tr>
         <td>
             <h3 align="center">HSV y rangos 2</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/demo_red.png">                                             
         </td>
         <td>
             <h3 align="center">Sobel para efecto relieve</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/demo_sobel.png">                                             
         </td>
         <td>
             <h3 align="center">Umbralizado</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/demo_thresh.png">                                             
         </td>
         <td>
             <h3 align="center">Efecto Cartoon</h3>
@@ -375,22 +375,15 @@ A la hora de realizar esta interpretación surgió un problema, y era cómo dete
 A continuación, se muestran varios ejemplos de uso de esta interpretación realizada:
 
 <table align="center">
-    <tr>
-        <td>
-            <img src="imgs/mandril.jpg">
-        </td>
-        <td>
-            <img src="imgs/mandril.jpg">
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <img src="imgs/mandril.jpg">
-        </td>
-        <td>
-            <img src="imgs/mandril.jpg">
-        </td>
-    </tr>
+    <td>
+        <img src="imgs/I_circle.png">
+    </td>
+    <td>
+        <img src="imgs/I_glasses.png">
+    </td>
+    <td>
+        <img src="imgs/I_hola.png">
+    </td>
 </table>
 
 > [!NOTE]
@@ -499,8 +492,9 @@ El canvas se actualiza aplicando una multiplicación por la variable DECAY_RATE 
 - **+ / -**: Ajustar sensibilidad del movimiento
 - **d / D**: Ajustar velocidad de desvanecimiento
 
-<img src="imgs/Motion.png">
-
+<div align="center">
+    <img src="imgs/Motion.png">
+</div>
 
 <h2 align="center"> Bibliografía </h2>
 
@@ -508,5 +502,8 @@ El canvas se actualiza aplicando una multiplicación por la variable DECAY_RATE 
 - [OpenCV Canny Edge Detection](https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html)
 - [OpenCV Sobel Derivatives](https://docs.opencv.org/4.x/d2/d2c/tutorial_sobel_derivatives.html)
 - [OpenCV Morphological Transformations](https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html)
+- [OpenCV Contours](https://docs.opencv.org/4.x/d4/d73/tutorial_py_contours_begin.html)
+- [OpenCV Contour Features](https://docs.opencv.org/3.4/dd/d49/tutorial_py_contour_features.html)
 - [NumPy Array Manipulation](https://numpy.org/doc/stable/reference/routines.array-manipulation.html)
 - [Messa di Voce - Interactive Installation](https://youtu.be/GfoqiyB1ndE)
+- [Virtual Air Guitar](https://www.youtube.com/watch?v=FIAmyoEpV5c)
