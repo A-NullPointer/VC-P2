@@ -325,7 +325,7 @@ A continuación, se muestran todos los modos disponibles en funcionamiento:
         </td>
         <td>
             <h3 align="center">Canny colorido</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/Colored_Edges.png">                                             
         </td>
         <td>
             <h3 align="center">HSV y rangos 1</h3>
@@ -347,7 +347,7 @@ A continuación, se muestran todos los modos disponibles en funcionamiento:
         </td>
         <td>
             <h3 align="center">Efecto Cartoon</h3>
-            <img src="imgs/mandril_sobel_solo.jpg">                                             
+            <img src="imgs/Efecto_Cartoon.png">                                             
         </td>
     </tr>
 </table>
@@ -498,6 +498,8 @@ El canvas se actualiza aplicando una multiplicación por la variable DECAY_RATE 
 - **SPACE**: Limpiar canvas
 - **+ / -**: Ajustar sensibilidad del movimiento
 - **d / D**: Ajustar velocidad de desvanecimiento
+
+<img src="imgs/Motion.png">
 
 
 <h2 align="center"> Bibliografía </h2>
