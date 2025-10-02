@@ -49,7 +49,46 @@ Finalmente, abriendo nuestro IDE favorito y teniendo instalado todo lo necesario
 
 <h1 align="center">Tareas</h1>
 
-<h2 align="center">Tarea 1: Contar píxeles no nulos en cada fila haciendo un conteo de aquellas que tienen un valor obtenido mayoor o igual al 90% del máximo</h2>
+<h2 align="center">Tarea 1: Contar píxeles no nulos en cada fila haciendo un conteo de aquellas que tienen un valor obtenido mayor o igual al 90% del máximo usando Canny</h2>
+
+Se aplica el operador de Canny para detectar bordes en la imagen en escala de grises:
+
+```python
+gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+canny = cv2.Canny(gris, 100, 200)
+```
+Se normaliza el conteo de píxeles blancos dividiendo por el valor máximo del píxel (255) y el número de columnas:
+
+```python
+row_counts = cv2.reduce(canny, 1, cv2.REDUCE_SUM, dtype=cv2.CV_32SC1).flatten()
+row = row_counts / (255 * canny.shape[1])
+```
+
+Se determina el valor máximo de píxeles blancos por fila y se establecen las filas que superan el 90% de este máximo:
+
+```python
+umbral = 0.9 * max_row
+filas_seleccionadas = np.where(row >= umbral)[0]
+```
+
+Las filas seleccionadas se marcan en rojo sobre la imagen de Canny para visualizar las regiones con mayor concentración de bordes horizontales.
+
+
+De manera similar, se realiza el análisis por columnas:
+
+```python
+col_counts = cv2.reduce(canny, 0, cv2.REDUCE_SUM, dtype=cv2.CV_32SC1)
+cols = col_counts[0] / (255 * canny.shape[0])
+```
+
+Se identifican las columnas que superan el 90% del valor máximo y se marcan sobre la imagen.
+
+<h3 align="center"> Resultados </h3>
+
+Los histogramas muestran la distribución de bordes detectados:
+
+<img src="imgs\analisis_filas_canny.jpg">
+<img src="imgs/analisis_columnas_canny.jpg">
 
 <h2 align="center">Tarea 2: Aplicar umbralizado a imagen resulante de sobel. Posteriormente, contar filas y columnas con píxeles no nulos, remarcando aquellas que tengan un valor mayor al 90% del máximo. Canny vs Sobel</h2>
 
@@ -333,8 +372,142 @@ A continuación, se muestran varios ejemplos de uso de esta interpretación real
 > [!NOTE]
 > Se pueden borrar los trazos realizados con la tecla BACKSPACE. El código de la aplicación puede verse en el cuaderno [Practica2.ipynb](Practica2.ipynb).
 
-<h2 align="center">Tarea 4a: Dibuja con Movimiento</h2>
+
+
+<h2 align="center">Tarea 4b: Estela con movimiento</h2>
+
+Inspirado en la instalación interactiva "Messa di Voce", este demostrador permite pintar con el movimiento detectado por la cámara.
+
+### Concepto
+
+- El movimiento deja "pintura" en pantalla
+- Diferentes intensidades de movimiento generan diferentes colores
+- Los bordes del movimiento se resaltan
+- La pintura se desvanece gradualmente si no hay movimiento
+
+### Detección de movimiento
+
+```python
+def detectar_movimiento(frame_actual, frame_prev, umbral=25):
+    gris_actual = cv2.cvtColor(frame_actual, cv2.COLOR_BGR2GRAY)
+    gris_prev = cv2.cvtColor(frame_prev, cv2.COLOR_BGR2GRAY)
+    
+    gris_actual = cv2.GaussianBlur(gris_actual, (5, 5), 0)
+    gris_prev = cv2.GaussianBlur(gris_prev, (5, 5), 0)
+    
+    diff = cv2.absdiff(gris_actual, gris_prev)
+    _, mask = cv2.threshold(diff, umbral, 255, cv2.THRESH_BINARY)
+    
+    kernel = np.ones((5, 5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    
+    return mask, diff
+```
+
+El algoritmo:
+1. Convierte ambos frames a escala de grises
+2. Aplica suavizado Gaussiano para reducir ruido
+3. Calcula la diferencia absoluta entre frames
+4. Umbraliza para obtener máscara binaria de movimiento
+5. Aplica operaciones morfológicas para limpiar ruido
+
+### Generación de colores
+
+```python
+def aplicar_colores_movimiento(mask, intensidad, frame_shape):
+    h, w = frame_shape[:2]
+    
+    global contador_frames
+    hue = (contador_frames % 180)
+    
+    color_frame = np.zeros((h, w, 3), dtype=np.uint8)
+    color_frame[:, :, 0] = hue  # Hue
+    color_frame[:, :, 1] = 255  # Saturación máxima
+    color_frame[:, :, 2] = np.clip(intensidad * 3, 0, 255).astype(np.uint8)
+    
+    mask_3d = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    color_frame = cv2.bitwise_and(color_frame, mask_3d)
+    
+    color_bgr = cv2.cvtColor(color_frame, cv2.COLOR_HSV2BGR)
+    return color_bgr
+```
+
+El color cambia cíclicamente a través del espectro HSV:
+- **Hue**: Rotación continua (efecto arcoíris)
+- **Saturación**: Máxima (255)
+- **Value**: Proporcional a la intensidad del movimiento
+
+### Detección de bordes del movimiento
+
+```python
+def detectar_bordes_movimiento(mask):
+    bordes = cv2.Canny(mask, 50, 150)
+    
+    kernel = np.ones((3, 3), np.uint8)
+    bordes = cv2.dilate(bordes, kernel, iterations=1)
+    
+    return bordes
+```
+
+Se aplica Canny sobre la máscara de movimiento y se dilatan los bordes para hacerlos más visibles en color blanco brillante.
+
+### Actualización del canvas
+
+```python
+def procesar_frame(frame, frame_prev):
+    global canvas, contador_frames
+    
+    if canvas is None:
+        canvas = np.zeros((h, w, 3), dtype=np.uint8)
+    
+    mask_movimiento, diff = detectar_movimiento(frame, frame_prev, UMBRAL_MOVIMIENTO)
+    intensidad = calcular_intensidad_movimiento(diff)
+    color_movimiento = aplicar_colores_movimiento(mask_movimiento, intensidad, frame.shape)
+    
+    bordes = detectar_bordes_movimiento(mask_movimiento)
+    bordes_bgr = cv2.cvtColor(bordes, cv2.COLOR_GRAY2BGR)
+    bordes_bgr[bordes > 0] = [255, 255, 255]
+    
+    canvas = (canvas * DECAY_RATE).astype(np.uint8)
+    canvas = cv2.add(canvas, color_movimiento)
+    canvas = cv2.add(canvas, bordes_bgr)
+    
+    contador_frames += 2
+    return canvas
+```
+
+El canvas se actualiza aplicando:
+1. **Desvanecimiento**: Multiplicación por `DECAY_RATE` (0.95)
+2. **Nuevo movimiento**: Adición del color generado
+3. **Bordes**: Adición de bordes blancos brillantes
+
+### Controles interactivos
+
+- **ESC**: Salir
+- **SPACE**: Limpiar canvas
+- **+ / -**: Ajustar sensibilidad del movimiento
+- **d / D**: Ajustar velocidad de desvanecimiento
+
+### Parámetros configurables
+
+```python
+UMBRAL_MOVIMIENTO = 25  # Sensibilidad de detección (5-100)
+DECAY_RATE = 0.95       # Velocidad de desvanecimiento (0.85-0.99)
+COLOR_INTENSIDAD = 180  # Intensidad máxima de color
+```
+
+- **UMBRAL_MOVIMIENTO**: Valores bajos detectan movimientos sutiles
+- **DECAY_RATE**: Valores cercanos a 1 hacen que la pintura persista más tiempo
+- **COLOR_INTENSIDAD**: Controla el brillo máximo de los colores
 
 
 
-<h2 align="center">Bibliografía</h2>
+<h2 align="center"> Bibliografía </h2>
+
+- [Repositorio base y enunciado de esta práctica](https://github.com/otsedom/otsedom.github.io/tree/main/VC/P2)
+- [OpenCV Canny Edge Detection](https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html)
+- [OpenCV Sobel Derivatives](https://docs.opencv.org/4.x/d2/d2c/tutorial_sobel_derivatives.html)
+- [OpenCV Morphological Transformations](https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html)
+- [NumPy Array Manipulation](https://numpy.org/doc/stable/reference/routines.array-manipulation.html)
+- [Messa di Voce - Interactive Installation](https://youtu.be/GfoqiyB1ndE)
