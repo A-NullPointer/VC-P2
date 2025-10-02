@@ -273,29 +273,29 @@ def threshold_function(image, *args):
     return threshold_image
 
 @staticmethod
-    def create_colored_edges_effect(frame, *args):
-        colored = Demo.posterize(frame, levels=6)
-        colored = Demo.apply_pop_art_color(colored, hue_shift=30)
-        edges = Demo.border_canny(frame, 100, 255)
-        edges_inv = cv2.bitwise_not(edges)
-        edges_color = cv2.cvtColor(edges_inv, cv2.COLOR_GRAY2BGR)
-        result = cv2.bitwise_and(colored, edges_color)
-        return result
+def create_colored_edges_effect(frame, *args):
+    colored = Demo.posterize(frame, levels=6)
+    colored = Demo.apply_pop_art_color(colored, hue_shift=30)
+    edges = Demo.border_canny(frame, 100, 255)
+    edges_inv = cv2.bitwise_not(edges)
+    edges_color = cv2.cvtColor(edges_inv, cv2.COLOR_GRAY2BGR)
+    result = cv2.bitwise_and(colored, edges_color)
+    return result
 
 @staticmethod
-    def create_cartoon_effect(frame, *args):
-        bits = 1
-        levels = 2 ** bits
-        step = 256 // levels
-        colored_regions = (frame // step) * step + step // 2  
-        edges = Demo.border_canny_grosor(frame, linf=100, lsup=255, grosor=2)
-        mask_edges_bgr = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-        mask = mask_edges_bgr.astype(float) / 255.0
+def create_cartoon_effect(frame, *args):
+    bits = 1
+    levels = 2 ** bits
+    step = 256 // levels
+    colored_regions = (frame // step) * step + step // 2  
+    edges = Demo.border_canny_grosor(frame, linf=100, lsup=255, grosor=2)
+    mask_edges_bgr = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    mask = mask_edges_bgr.astype(float) / 255.0
 
-        #result = cv2.add(colored_regions, edges_bgr)
-        result = (colored_regions * mask).astype(np.uint8)
+    #result = cv2.add(colored_regions, edges_bgr)
+    result = (colored_regions * mask).astype(np.uint8)
 
-        return result
+    return result
 
 ```
 
